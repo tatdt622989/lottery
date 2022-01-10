@@ -149,8 +149,8 @@ function List(props) {
       if (props.isRunning) {
         swiper.autoplay.start();
         setTimeout(() => {
-          setSpeedOffset(getRandomInt(50, 80));
-        }, getRandomInt(2000, 4000));
+          setSpeedOffset(getRandomInt(100, 120));
+        }, getRandomInt(1000, 2000));
       }
     }
   }, [props.numList]);
@@ -181,24 +181,32 @@ function List(props) {
         if (swiper && speedOffset) {
           if (swiper.params.speed <= 1000) {
             swiper.params.speed += speedOffset;
+            if (swiper.params.speed > 800 && swiper.params.speed <= 950 && getRandomInt(0, 2)) {
+              console.log('reverse');
+              swiper.autoplay.stop();
+            }
           } else {
             swiper.autoplay.stop();
             setSpeedOffset(0);
           }
         }
       }}
-      onBeforeLoopFix={() => {
-        
-      }}
-      onAutoplayStop={(swiper) => {
+      onAutoplayStop={() => {
         setTimeout(() => {
-          console.log('autoplay end', swiper.realIndex);
-          if (props.isDirty) {
-            swiper.params.speed = 100;
-            setActiveIndex(swiper.realIndex);
-            props.setIsRunning(false);
+          if (props.isRunning && swiper.params.speed <= 1000) {
+            swiper.params.autoplay.reverseDirection = true;
+            swiper.update();
+            swiper.autoplay.start();
+          } else {
+            if (props.isDirty) {
+              swiper.params.speed = 100;
+              setActiveIndex(swiper.realIndex);
+              props.setIsRunning(false);
+              swiper.params.autoplay.reverseDirection = false;
+              swiper.update();
+            }
           }
-        }, 500)
+        }, 1000)
       }}
       speed={100}
       allowTouchMove={false}
